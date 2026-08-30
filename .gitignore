@@ -1,0 +1,25 @@
+# Databases & Sensitive Data
+data/
+*.db
+*.db-journal
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Testing & IDEs
+.pytest_cache/
+.vscode/
+.idea/
+.project
+.pydevproject
+.settings/
+.DS_Store

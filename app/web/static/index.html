@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Media Monitoring - X Keyword Search</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1>Social Media Monitoring</h1>
+          <span class="subtitle">Core X (Twitter) Keyword Search Prototype</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div id="status-badge" class="status-badge status-loading">
+          <span class="dot"></span>
+          <span id="status-text">Checking Pool...</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="showAccountModal()">Manage Accounts</button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('search')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Live Search
+      </button>
+      <button class="tab-btn" onclick="switchTab('database')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7v10c0 2.2 3.6 4 8 4s8-1.8 8-4V7M4 7c0 2.2 3.6 4 8 4s8-1.8 8-4M4 7c0-2.2 3.6-4 8-4s8 1.8 8 4m0 5c0 2.2-3.6 4-8 4s-8-1.8-8-4"/></svg>
+        Saved Posts (<span id="saved-count-nav">0</span>)
+      </button>
+      <button class="tab-btn" onclick="switchTab('history')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Search History
+      </button>
+      <button class="tab-btn" onclick="switchTab('accounts')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Account Pool
+      </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Search Tab -->
+      <section id="tab-search" class="tab-content active">
+        <!-- Account Warning Banner if not ready -->
+        <div id="account-warning-banner" class="banner banner-warning hidden">
+          <div class="banner-icon">⚠️</div>
+          <div class="banner-text">
+            <strong>No active X accounts in pool:</strong> X requires authenticated sessions to search posts. Add your session cookies (`auth_token` and `ct0`) to get started immediately.
+          </div>
+          <button class="btn btn-warning btn-sm" onclick="showAccountModal()">Add Cookies</button>
+        </div>
+
+        <!-- Search Box Card -->
+        <div class="card search-card">
+          <form id="search-form" onsubmit="handleSearch(event)">
+            <div class="search-input-group">
+              <input 
+                type="text" 
+                id="search-input" 
+                placeholder="Enter keyword or query (e.g. IIUI, COMSATS, NUST, &quot;International Islamic University&quot;)..." 
+                autocomplete="off"
+                required
+              />
+              <button type="submit" id="search-btn" class="btn btn-primary">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <span>Search X</span>
+              </button>
+            </div>
+
+            <!-- Controls and presets -->
+            <div class="search-options">
+              <div class="presets">
+                <span class="preset-label">Quick test presets:</span>
+                <button type="button" class="preset-btn" onclick="setQuery('IIUI')">IIUI</button>
+                <button type="button" class="preset-btn" onclick="setQuery('COMSATS')">COMSATS</button>
+                <button type="button" class="preset-btn" onclick="setQuery('NUST')">NUST</button>
+                <button type="button" class="preset-btn" onclick="setQuery('&quot;International Islamic University&quot;')">&quot;International Islamic University&quot;</button>
+                <button type="button" class="preset-btn" onclick="setQuery('IIUI OR COMSATS')">IIUI OR COMSATS</button>
+              </div>
+
+              <div class="filters">
+                <div class="filter-item">
+                  <label for="search-limit">Limit:</label>
+                  <select id="search-limit">
+                    <option value="10">10 posts</option>
+                    <option value="20" selected>20 posts</option>
+                    <option value="50">50 posts</option>
+                    <option value="100">100 posts</option>
+                  </select>
+                </div>
+                <div class="filter-item">
+                  <label for="search-tab">Tab:</label>
+                  <select id="search-tab">
+                    <option value="Latest" selected>Latest</option>
+                    <option value="Top">Top</option>
+                  </select>
+                </div>
+                <div class="filter-item checkbox-item">
+                  <label>
+                    <input type="checkbox" id="save-db-toggle" checked>
+                    Save to local SQLite
+                  </label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Search Status / Results Meta -->
+        <div id="results-header" class="results-header hidden">
+          <div class="results-meta">
+            <h2 id="results-title">Search Results</h2>
+            <span id="results-stats" class="results-stats"></span>
+          </div>
+          <div class="results-actions">
+            <button class="btn btn-secondary btn-sm" onclick="exportResultsJSON()">Export JSON</button>
+          </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="search-loading" class="loading-container hidden">
+          <div class="spinner"></div>
+          <p id="loading-msg">Searching X for matching posts...</p>
+        </div>
+
+        <!-- Error Message Box -->
+        <div id="search-error" class="error-box hidden">
+          <div class="error-title" id="error-title">Search Failed</div>
+          <div class="error-msg" id="error-msg"></div>
+          <div class="error-help" id="error-help"></div>
+        </div>
+
+        <!-- Results List -->
+        <div id="posts-container" class="posts-grid"></div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <h3>Ready to Search X</h3>
+          <p>Enter a university keyword or select a preset above to collect real matching posts.</p>
+        </div>
+      </section>
+
+      <!-- Saved Posts Database Tab -->
+      <section id="tab-database" class="tab-content">
+        <div class="card">
+          <div class="db-filter-bar">
+            <input type="text" id="db-filter-input" placeholder="Filter saved posts by keyword or author..." onkeyup="filterSavedPosts()">
+            <button class="btn btn-secondary" onclick="loadSavedPosts()">Refresh</button>
+          </div>
+        </div>
+        <div id="saved-posts-container" class="posts-grid"></div>
+      </section>
+
+      <!-- History Tab -->
+      <section id="tab-history" class="tab-content">
+        <div class="card">
+          <h3>Recent Search Queries</h3>
+          <div id="history-table-container" class="table-container"></div>
+        </div>
+      </section>
+
+      <!-- Accounts Tab -->
+      <section id="tab-accounts" class="tab-content">
+        <div class="card">
+          <div class="card-header">
+            <h3>X Account Pool Management</h3>
+            <button class="btn btn-primary btn-sm" onclick="showAccountModal()">+ Add Account Cookies</button>
+          </div>
+          <p class="card-desc">
+            twscrape rotates accounts in this local pool to handle rate limits and execute authenticated searches.
+          </p>
+          <div id="accounts-table-container" class="table-container"></div>
+          <div class="pool-actions">
+            <button class="btn btn-secondary btn-sm" onclick="resetLocks()">Reset Rate Limit Locks</button>
+            <button class="btn btn-secondary btn-sm" onclick="checkStatus()">Refresh Status</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Cookie Setup Modal -->
+    <div id="account-modal" class="modal hidden">
+      <div class="modal-overlay" onclick="hideAccountModal()"></div>
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Add X Session Cookies</h3>
+          <button class="modal-close" onclick="hideAccountModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">
+            To search X reliably without automated login challenges, provide the session cookies from an active browser session on <code>x.com</code>.
+          </p>
+          <div class="instructions-card">
+            <strong>How to get cookies:</strong>
+            <ol>
+              <li>Open <a href="https://x.com" target="_blank" rel="noopener">x.com</a> in your browser and ensure you are logged in.</li>
+              <li>Press <kbd>F12</kbd> (or Right Click → Inspect) → Go to <strong>Application</strong> (or Storage) tab.</li>
+              <li>Under <strong>Cookies</strong>, click <code>https://x.com</code>.</li>
+              <li>Copy the values for <code>auth_token</code> and <code>ct0</code>.</li>
+            </ol>
+          </div>
+
+          <form id="cookie-form" onsubmit="handleAddCookies(event)">
+            <div class="form-group">
+              <label for="cookie-account-name">Account Label / Identifier</label>
+              <input type="text" id="cookie-account-name" placeholder="e.g. my_account_1" value="internship_account" required>
+            </div>
+            <div class="form-group">
+              <label for="cookie-string">Cookie String or Header</label>
+              <textarea 
+                id="cookie-string" 
+                rows="4" 
+                placeholder="auth_token=xxxxxxxxxxxxxxxx; ct0=yyyyyyyyyyyyyyyy" 
+                required
+              ></textarea>
+              <span class="field-hint">Paste full cookie header or at least <code>auth_token=...; ct0=...</code></span>
+            </div>
+            <div id="cookie-modal-error" class="modal-error hidden"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" onclick="hideAccountModal()">Cancel</button>
+              <button type="submit" id="cookie-submit-btn" class="btn btn-primary">Save Account Session</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Raw Data View Modal -->
+    <div id="raw-modal" class="modal hidden">
+      <div class="modal-overlay" onclick="hideRawModal()"></div>
+      <div class="modal-card modal-lg">
+        <div class="modal-header">
+          <h3 id="raw-modal-title">Raw Post Payload</h3>
+          <button class="modal-close" onclick="hideRawModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <pre id="raw-json-content"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
