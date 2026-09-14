@@ -3,260 +3,2319 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Social Media Monitoring - X Keyword Search</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <title>TrendChecker | 7-Platform Social Media Intelligence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
+  <style>
+    /* =========================================================
+       TrendChecker - Cyber-SaaS Dark Theme & 7-Platform Branding
+       ========================================================= */
+    :root {
+      --bg-base: #080a0f;
+      --bg-surface: #0e131f;
+      --bg-card: #141b2d;
+      --bg-card-hover: #1a233a;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: #00e599;
+      
+      --text-primary: #f3f4f6;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      
+      --accent-green: #00e599;
+      --accent-green-bg: rgba(0, 229, 153, 0.12);
+      --accent-red: #ff4d6d;
+      --accent-red-bg: rgba(255, 77, 109, 0.12);
+      --accent-amber: #f59e0b;
+      --accent-amber-bg: rgba(245, 158, 11, 0.12);
+      --accent-blue: #38bdf8;
+      --accent-blue-bg: rgba(56, 189, 248, 0.12);
+      --accent-purple: #a855f7;
+      --accent-purple-bg: rgba(168, 85, 247, 0.15);
+
+      /* Official Platform Brand Colors */
+      --color-x: #1d9bf0;
+      --color-fb: #1877f2;
+      --color-reddit: #ff4500;
+      --color-youtube: #ff0000;
+      --color-instagram: #e1306c;
+      --color-linkedin: #0a66c2;
+      --color-news: #34a853;
+      
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-main);
+      line-height: 1.5;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    .top-header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(10px);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #00e599, #0284c7);
+      color: #000;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .brand-title span {
+      color: var(--accent-green);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .live-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: rgba(0, 229, 153, 0.08);
+      border: 1px solid rgba(0, 229, 153, 0.2);
+      padding: 5px 12px;
+      border-radius: 20px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-green);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg-card);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Main Container */
+    .app-container {
+      max-width: 1320px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px 60px;
+      flex-grow: 1;
+    }
+
+    /* Search Card */
+    .search-hero {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .search-hero-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .search-hero-title h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .search-hero-title p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .search-form-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .input-group-search {
+      flex: 1 1 360px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-group-search i {
+      position: absolute;
+      left: 14px;
+      color: var(--text-muted);
+      font-size: 15px;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      padding: 12px 14px 12px 42px;
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-green);
+      box-shadow: 0 0 0 3px rgba(0, 229, 153, 0.15);
+    }
+
+    .select-dropdown {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13px;
+      padding: 0 14px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      min-width: 170px;
+    }
+
+    .select-dropdown:focus {
+      outline: none;
+      border-color: var(--accent-green);
+    }
+
+    .btn-glow-search {
+      background: var(--accent-green);
+      color: #000;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 0 16px rgba(0, 229, 153, 0.35);
+    }
+
+    .btn-glow-search:hover {
+      background: #10f0a8;
+      box-shadow: 0 0 24px rgba(0, 229, 153, 0.6);
+      transform: translateY(-1px);
+    }
+
+    .quick-chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .quick-chips-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .chip-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--accent-green);
+      border-color: rgba(0, 229, 153, 0.3);
+    }
+
+    /* Loading Banner */
+    .loading-state {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: rgba(0, 229, 153, 0.08);
+      border: 1px solid rgba(0, 229, 153, 0.2);
+      border-radius: var(--radius-md);
+      color: var(--accent-green);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Active Filter Banner */
+    .active-filter-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: var(--radius-md);
+      padding: 8px 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: var(--accent-blue);
+    }
+
+    .active-filter-indicator button {
+      background: transparent;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--accent-blue);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    /* Grid Analytics Layout */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.4fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .analytics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title i {
+      color: var(--accent-green);
+    }
+
+    /* Total Mentions & Sentiment Breakdown */
+    .kpi-big-number {
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1;
+      color: #fff;
+      letter-spacing: -1.5px;
+      margin-bottom: 6px;
+    }
+
+    .kpi-subtext {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .sentiment-segmented-bar {
+      height: 10px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.06);
+      display: flex;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .seg-pos { background: var(--accent-green); transition: width 0.4s ease; }
+    .seg-neu { background: #64748b; transition: width 0.4s ease; }
+    .seg-neg { background: var(--accent-red); transition: width 0.4s ease; }
+
+    .sentiment-legend-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .legend-item {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .legend-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .legend-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    .dot-pos { background: var(--accent-green); }
+    .dot-neu { background: #64748b; }
+    .dot-neg { background: var(--accent-red); }
+
+    .legend-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Chart Container */
+    .chart-box {
+      position: relative;
+      flex-grow: 1;
+      min-height: 200px;
+      width: 100%;
+    }
+
+    /* KPI Metrics Summary Row */
+    .metrics-summary-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .metrics-summary-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .metric-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .metric-info h4 {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .metric-info .metric-num {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .metric-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .icon-green { background: var(--accent-green-bg); color: var(--accent-green); }
+    .icon-blue { background: var(--accent-blue-bg); color: var(--accent-blue); }
+    .icon-amber { background: var(--accent-amber-bg); color: var(--accent-amber); }
+    .icon-purple { background: var(--accent-purple-bg); color: var(--accent-purple); }
+
+    /* Feed & Intelligence Stream */
+    .feed-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+    }
+
+    .feed-controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .platform-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tab-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .tab-pill:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Platform specific active tab states */
+    .tab-pill.active[data-platform="all"] {
+      background: rgba(0, 229, 153, 0.14);
+      border-color: var(--accent-green);
+      color: var(--accent-green);
+    }
+    .tab-pill.active[data-platform="x"] {
+      background: rgba(29, 155, 240, 0.18);
+      border-color: var(--color-x);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(29, 155, 240, 0.3);
+    }
+    .tab-pill.active[data-platform="facebook"] {
+      background: rgba(24, 119, 242, 0.2);
+      border-color: var(--color-fb);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(24, 119, 242, 0.3);
+    }
+    .tab-pill.active[data-platform="reddit"] {
+      background: rgba(255, 69, 0, 0.2);
+      border-color: var(--color-reddit);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(255, 69, 0, 0.3);
+    }
+    .tab-pill.active[data-platform="youtube"] {
+      background: rgba(255, 0, 0, 0.2);
+      border-color: var(--color-youtube);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(255, 0, 0, 0.3);
+    }
+    .tab-pill.active[data-platform="instagram"] {
+      background: rgba(225, 48, 108, 0.2);
+      border-color: var(--color-instagram);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(225, 48, 108, 0.3);
+    }
+    .tab-pill.active[data-platform="linkedin"] {
+      background: rgba(10, 102, 194, 0.2);
+      border-color: var(--color-linkedin);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(10, 102, 194, 0.3);
+    }
+    .tab-pill.active[data-platform="news"] {
+      background: rgba(52, 168, 83, 0.2);
+      border-color: var(--color-news);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(52, 168, 83, 0.3);
+    }
+
+    .feed-right-tools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Content Type Filter: All vs Posts vs Comments */
+    .content-type-toggle {
+      display: flex;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 2px;
+    }
+
+    .btn-type-filter {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+
+    .btn-type-filter.active {
+      background: var(--bg-card);
+      color: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .sentiment-filters {
+      display: flex;
+      gap: 5px;
+    }
+
+    .btn-sent-filter {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-sent-filter.active {
+      background: var(--bg-card-hover);
+      color: #fff;
+      border-color: #fff;
+    }
+
+    .in-feed-search {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-size: 12px;
+      padding: 6px 12px;
+      outline: none;
+      width: 150px;
+    }
+
+    .in-feed-search:focus {
+      border-color: var(--accent-green);
+    }
+
+    .btn-export {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--accent-green);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-export:hover {
+      background: var(--accent-green-bg);
+      border-color: var(--accent-green);
+    }
+
+    /* Post Card Item */
+    .post-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .post-card-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      border-left: 4px solid #64748b;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .post-card-item:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: var(--bg-card-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Sentiment Left Borders */
+    .post-card-item.pos-border { border-left-color: var(--accent-green); }
+    .post-card-item.neg-border { border-left-color: var(--accent-red); }
+    .post-card-item.neu-border { border-left-color: #64748b; }
+
+    /* Comment item highlight */
+    .post-card-item.is-comment {
+      background: #111726;
+      border-style: dashed;
+    }
+
+    /* =========================================================
+       DISTINCT 7-PLATFORM COLOR ACCENTS & LOGOS
+       ========================================================= */
+    /* 1. X (Twitter) */
+    .post-card-item.plat-x { box-shadow: inset 0 1px 0 rgba(29, 155, 240, 0.25); }
+    .post-card-item.plat-x .tag-platform { background: rgba(29, 155, 240, 0.18); color: #fff; border: 1px solid rgba(29, 155, 240, 0.4); }
+    .post-card-item.plat-x .avatar-circle { background: rgba(29, 155, 240, 0.15); color: var(--color-x); border: 1px solid rgba(29, 155, 240, 0.35); }
+
+    /* 2. Facebook */
+    .post-card-item.plat-facebook { box-shadow: inset 0 1px 0 rgba(24, 119, 242, 0.25); }
+    .post-card-item.plat-facebook .tag-platform { background: rgba(24, 119, 242, 0.2); color: #58a6ff; border: 1px solid rgba(24, 119, 242, 0.45); }
+    .post-card-item.plat-facebook .avatar-circle { background: rgba(24, 119, 242, 0.18); color: #58a6ff; border: 1px solid rgba(24, 119, 242, 0.4); }
+
+    /* 3. Reddit */
+    .post-card-item.plat-reddit { box-shadow: inset 0 1px 0 rgba(255, 69, 0, 0.25); }
+    .post-card-item.plat-reddit .tag-platform { background: rgba(255, 69, 0, 0.2); color: #ff6b35; border: 1px solid rgba(255, 69, 0, 0.45); }
+    .post-card-item.plat-reddit .avatar-circle { background: rgba(255, 69, 0, 0.18); color: #ff6b35; border: 1px solid rgba(255, 69, 0, 0.4); }
+
+    /* 4. YouTube */
+    .post-card-item.plat-youtube { box-shadow: inset 0 1px 0 rgba(255, 0, 0, 0.25); }
+    .post-card-item.plat-youtube .tag-platform { background: rgba(255, 0, 0, 0.2); color: #ff4d4d; border: 1px solid rgba(255, 0, 0, 0.45); }
+    .post-card-item.plat-youtube .avatar-circle { background: rgba(255, 0, 0, 0.18); color: #ff4d4d; border: 1px solid rgba(255, 0, 0, 0.4); }
+
+    /* 5. Instagram */
+    .post-card-item.plat-instagram { box-shadow: inset 0 1px 0 rgba(225, 48, 108, 0.25); }
+    .post-card-item.plat-instagram .tag-platform { background: rgba(225, 48, 108, 0.2); color: #f472b6; border: 1px solid rgba(225, 48, 108, 0.45); }
+    .post-card-item.plat-instagram .avatar-circle { background: rgba(225, 48, 108, 0.18); color: #f472b6; border: 1px solid rgba(225, 48, 108, 0.4); }
+
+    /* 6. LinkedIn */
+    .post-card-item.plat-linkedin { box-shadow: inset 0 1px 0 rgba(10, 102, 194, 0.25); }
+    .post-card-item.plat-linkedin .tag-platform { background: rgba(10, 102, 194, 0.2); color: #60a5fa; border: 1px solid rgba(10, 102, 194, 0.45); }
+    .post-card-item.plat-linkedin .avatar-circle { background: rgba(10, 102, 194, 0.18); color: #60a5fa; border: 1px solid rgba(10, 102, 194, 0.4); }
+
+    /* 7. Google News */
+    .post-card-item.plat-news { box-shadow: inset 0 1px 0 rgba(52, 168, 83, 0.25); }
+    .post-card-item.plat-news .tag-platform { background: rgba(52, 168, 83, 0.2); color: #4ade80; border: 1px solid rgba(52, 168, 83, 0.45); }
+    .post-card-item.plat-news .avatar-circle { background: rgba(52, 168, 83, 0.18); color: #4ade80; border: 1px solid rgba(52, 168, 83, 0.4); }
+
+    .post-top-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .post-author-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .avatar-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .author-name-text {
+      font-weight: 700;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .author-handle-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-left: 4px;
+    }
+
+    .post-date-text {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .post-badge-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tag-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 12px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tag-pos { background: var(--accent-green-bg); color: var(--accent-green); border: 1px solid rgba(0, 229, 153, 0.3); }
+    .tag-neg { background: var(--accent-red-bg); color: var(--accent-red); border: 1px solid rgba(255, 77, 109, 0.3); }
+    .tag-neu { background: rgba(100, 116, 139, 0.15); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); }
+    .tag-topic { background: var(--accent-blue-bg); color: var(--accent-blue); border: 1px solid rgba(56, 189, 248, 0.3); }
+    
+    /* Type Badges: Post vs Comment */
+    .tag-type-post { background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .tag-type-comment { background: var(--accent-purple-bg); color: var(--accent-purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    .post-text-body {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      word-break: break-word;
+    }
+
+    /* Keyword highlight */
+    mark.query-highlight {
+      background: rgba(0, 229, 153, 0.25);
+      color: #fff;
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+
+    .post-footer-metrics {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .stats-icons-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .metric-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .metric-badge:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .metric-badge i.icon-like { color: #ff4d6d; }
+    .metric-badge i.icon-share { color: #00e599; }
+    .metric-badge i.icon-comment { color: #38bdf8; }
+    .metric-badge i.icon-view { color: #f59e0b; }
+
+    .card-actions-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-copy-post {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 13px;
+      transition: color 0.15s;
+    }
+
+    .btn-copy-post:hover {
+      color: #fff;
+    }
+
+    .link-out-btn {
+      color: var(--accent-green);
+      text-decoration: none;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.15s;
+    }
+
+    .link-out-btn:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 48px 20px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 36px;
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-window {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      width: 460px;
+      max-width: 90%;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-window h3 {
+      font-size: 17px;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .modal-window p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .field-group {
+      margin-bottom: 16px;
+    }
+
+    .field-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .field-group input, .field-group textarea {
+      width: 100%;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+
+    .field-group input:focus, .field-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-green);
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent-green);
+      border: none;
+      color: #000;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--accent-green);
+      color: #000;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
+
+  <!-- Top Navigation Header -->
+  <header class="top-header">
+    <div class="brand-group">
+      <div class="brand-badge">
+        <i class="fa-solid fa-bolt"></i> 7-SOURCES
+      </div>
+      <div class="brand-title">
+        Trend<span>Checker</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="live-status">
+        <div class="pulse-dot"></div>
+        <span>Posts & Comments Tracking Engine Active</span>
+      </div>
+      <button class="btn-ghost" id="btnOpenAccounts">
+        <i class="fa-solid fa-key"></i> Scraper Settings
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
   <div class="app-container">
-    <!-- Header -->
-    <header class="header">
-      <div class="brand">
-        <div class="brand-logo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-          </svg>
-        </div>
-        <div class="brand-info">
-          <h1>Social Media Monitoring</h1>
-          <span class="subtitle">Core X (Twitter) Keyword Search Prototype</span>
+    
+    <!-- Search Hero Card -->
+    <section class="search-hero">
+      <div class="search-hero-title">
+        <div>
+          <h2>Social Intelligence & Comment Monitoring</h2>
+          <p>Scan posts, comment threads, and engagement across X (Twitter), Facebook, Reddit, YouTube, Instagram, LinkedIn, and Google News.</p>
         </div>
       </div>
-      <div class="header-actions">
-        <div id="status-badge" class="status-badge status-loading">
-          <span class="dot"></span>
-          <span id="status-text">Checking Pool...</span>
+
+      <form id="mainSearchForm" class="search-form-row" onsubmit="return false;">
+        <div class="input-group-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="keywordInput" class="search-input" placeholder="Search keywords (e.g. COMSATS, IIUI, OpenAI, #Tech)..." required autocomplete="off">
         </div>
-        <button class="btn btn-secondary btn-sm" onclick="showAccountModal()">Manage Accounts</button>
+
+        <select id="platformSelect" class="select-dropdown">
+          <option value="all">⚡ All 7 Sources (Parallel)</option>
+          <option value="x">𝕏 X (Twitter & Replies)</option>
+          <option value="reddit">Reddit (Posts & Comments)</option>
+          <option value="youtube">YouTube (Videos & Details)</option>
+          <option value="facebook">Facebook (Public Posts)</option>
+          <option value="instagram">Instagram Posts/Reels</option>
+          <option value="linkedin">LinkedIn Updates</option>
+          <option value="news">Google News RSS</option>
+        </select>
+
+        <select id="limitSelect" class="select-dropdown" style="min-width: 100px;">
+          <option value="20">20 Items</option>
+          <option value="50">50 Items</option>
+          <option value="100">100 Items</option>
+        </select>
+
+        <button type="button" id="btnExecuteSearch" class="btn-glow-search">
+          <i class="fa-solid fa-bolt"></i> Run Scan
+        </button>
+      </form>
+
+      <!-- Quick Chips -->
+      <div class="quick-chips">
+        <span class="quick-chips-label">Quick Scan:</span>
+        <button class="chip-btn" onclick="quickSearch('COMSATS')">COMSATS</button>
+        <button class="chip-btn" onclick="quickSearch('IIUI')">IIUI</button>
+        <button class="chip-btn" onclick="quickSearch('NUST')">NUST</button>
+        <button class="chip-btn" onclick="quickSearch('FAST NUCES')">FAST NUCES</button>
+        <button class="chip-btn" onclick="quickSearch('HEC Pakistan')">HEC Pakistan</button>
+        <button class="chip-btn" onclick="quickSearch('University Admissions 2026')">Admissions 2026</button>
       </div>
-    </header>
 
-    <!-- Navigation Tabs -->
-    <nav class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('search')">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        Live Search
-      </button>
-      <button class="tab-btn" onclick="switchTab('database')">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 7v10c0 2.2 3.6 4 8 4s8-1.8 8-4V7M4 7c0 2.2 3.6 4 8 4s8-1.8 8-4M4 7c0-2.2 3.6-4 8-4s8 1.8 8 4m0 5c0 2.2-3.6 4-8 4s-8-1.8-8-4"/></svg>
-        Saved Posts (<span id="saved-count-nav">0</span>)
-      </button>
-      <button class="tab-btn" onclick="switchTab('history')">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Search History
-      </button>
-      <button class="tab-btn" onclick="switchTab('accounts')">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Account Pool
-      </button>
-    </nav>
+      <!-- Loading State -->
+      <div id="searchLoader" class="loading-state hidden">
+        <i class="fa-solid fa-circle-notch fa-spin"></i>
+        <span>Dispatching real-time queries across posts, replies, and comment streams with AI sentiment scoring...</span>
+      </div>
+    </section>
 
-    <!-- Main Content Area -->
-    <main class="main-content">
-      <!-- Search Tab -->
-      <section id="tab-search" class="tab-content active">
-        <!-- Account Warning Banner if not ready -->
-        <div id="account-warning-banner" class="banner banner-warning hidden">
-          <div class="banner-icon">⚠️</div>
-          <div class="banner-text">
-            <strong>No active X accounts in pool:</strong> X requires authenticated sessions to search posts. Add your session cookies (`auth_token` and `ct0`) to get started immediately.
-          </div>
-          <button class="btn btn-warning btn-sm" onclick="showAccountModal()">Add Cookies</button>
+    <!-- Active Filter Indicator Banner -->
+    <div id="activeFilterBanner" class="active-filter-indicator hidden">
+      <span><i class="fa-solid fa-filter"></i> Active Scope: <strong id="filterBannerText">All Platforms</strong></span>
+      <button onclick="resetAllFilters()">Reset Filter</button>
+    </div>
+
+    <!-- Analytics Dashboard Top Row -->
+    <div class="analytics-grid">
+      
+      <!-- Card 1: Total Mentions & Sentiment Breakdown -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <span class="panel-title"><i class="fa-solid fa-chart-pie"></i> Volume & Sentiment</span>
+          <span id="sentimentPurityBadge" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; background: rgba(0,229,153,0.1); color: var(--accent-green); font-weight: 700;">LIVE NLP</span>
         </div>
 
-        <!-- Search Box Card -->
-        <div class="card search-card">
-          <form id="search-form" onsubmit="handleSearch(event)">
-            <div class="search-input-group">
-              <input 
-                type="text" 
-                id="search-input" 
-                placeholder="Enter keyword or query (e.g. IIUI, COMSATS, NUST, &quot;International Islamic University&quot;)..." 
-                autocomplete="off"
-                required
-              />
-              <button type="submit" id="search-btn" class="btn btn-primary">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                <span>Search X</span>
-              </button>
-            </div>
+        <div class="kpi-big-number" id="kpiTotalCount">0</div>
+        <div class="kpi-subtext" id="kpiScanSubtext">Total indexed posts & comments across selected scope</div>
 
-            <!-- Controls and presets -->
-            <div class="search-options">
-              <div class="presets">
-                <span class="preset-label">Quick test presets:</span>
-                <button type="button" class="preset-btn" onclick="setQuery('IIUI')">IIUI</button>
-                <button type="button" class="preset-btn" onclick="setQuery('COMSATS')">COMSATS</button>
-                <button type="button" class="preset-btn" onclick="setQuery('NUST')">NUST</button>
-                <button type="button" class="preset-btn" onclick="setQuery('&quot;International Islamic University&quot;')">&quot;International Islamic University&quot;</button>
-                <button type="button" class="preset-btn" onclick="setQuery('IIUI OR COMSATS')">IIUI OR COMSATS</button>
-              </div>
-
-              <div class="filters">
-                <div class="filter-item">
-                  <label for="search-limit">Limit:</label>
-                  <select id="search-limit">
-                    <option value="10">10 posts</option>
-                    <option value="20" selected>20 posts</option>
-                    <option value="50">50 posts</option>
-                    <option value="100">100 posts</option>
-                  </select>
-                </div>
-                <div class="filter-item">
-                  <label for="search-tab">Tab:</label>
-                  <select id="search-tab">
-                    <option value="Latest" selected>Latest</option>
-                    <option value="Top">Top</option>
-                  </select>
-                </div>
-                <div class="filter-item checkbox-item">
-                  <label>
-                    <input type="checkbox" id="save-db-toggle" checked>
-                    Save to local SQLite
-                  </label>
-                </div>
-              </div>
-            </div>
-          </form>
+        <!-- Segmented Sentiment Bar -->
+        <div class="sentiment-segmented-bar">
+          <div class="seg-pos" id="barPos" style="width: 33.3%;"></div>
+          <div class="seg-neu" id="barNeu" style="width: 33.3%;"></div>
+          <div class="seg-neg" id="barNeg" style="width: 33.4%;"></div>
         </div>
 
-        <!-- Search Status / Results Meta -->
-        <div id="results-header" class="results-header hidden">
-          <div class="results-meta">
-            <h2 id="results-title">Search Results</h2>
-            <span id="results-stats" class="results-stats"></span>
+        <!-- 3 Legend Metrics -->
+        <div class="sentiment-legend-row">
+          <div class="legend-item">
+            <span class="legend-label"><span class="legend-dot dot-pos"></span> Positive</span>
+            <span class="legend-val" id="legendValPos">0 (0%)</span>
           </div>
-          <div class="results-actions">
-            <button class="btn btn-secondary btn-sm" onclick="exportResultsJSON()">Export JSON</button>
+          <div class="legend-item">
+            <span class="legend-label"><span class="legend-dot dot-neu"></span> Neutral</span>
+            <span class="legend-val" id="legendValNeu">0 (0%)</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-label"><span class="legend-dot dot-neg"></span> Negative</span>
+            <span class="legend-val" id="legendValNeg">0 (0%)</span>
           </div>
         </div>
+      </div>
 
-        <!-- Loading Spinner -->
-        <div id="search-loading" class="loading-container hidden">
-          <div class="spinner"></div>
-          <p id="loading-msg">Searching X for matching posts...</p>
+      <!-- Card 2: Topic & Sentiment Chart -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <span class="panel-title"><i class="fa-solid fa-chart-column"></i> Topic & Category Breakdown</span>
+          <span style="font-size: 12px; color: var(--text-muted);" id="chartScopeLabel">All Sources</span>
         </div>
-
-        <!-- Error Message Box -->
-        <div id="search-error" class="error-box hidden">
-          <div class="error-title" id="error-title">Search Failed</div>
-          <div class="error-msg" id="error-msg"></div>
-          <div class="error-help" id="error-help"></div>
+        <div class="chart-box">
+          <canvas id="topicBarChart"></canvas>
         </div>
+      </div>
 
-        <!-- Results List -->
-        <div id="posts-container" class="posts-grid"></div>
+    </div>
 
-        <!-- Empty State -->
-        <div id="empty-state" class="empty-state">
-          <div class="empty-icon">🔍</div>
-          <h3>Ready to Search X</h3>
-          <p>Enter a university keyword or select a preset above to collect real matching posts.</p>
+    <!-- Secondary KPI Stat Cards Row (Includes Comments & Engagements) -->
+    <div class="metrics-summary-row">
+      <div class="metric-box">
+        <div class="metric-info">
+          <h4>Net Sentiment</h4>
+          <div class="metric-num" id="kpiNetSentiment">0%</div>
         </div>
-      </section>
-
-      <!-- Saved Posts Database Tab -->
-      <section id="tab-database" class="tab-content">
-        <div class="card">
-          <div class="db-filter-bar">
-            <input type="text" id="db-filter-input" placeholder="Filter saved posts by keyword or author..." onkeyup="filterSavedPosts()">
-            <button class="btn btn-secondary" onclick="loadSavedPosts()">Refresh</button>
-          </div>
+        <div class="metric-icon icon-green">
+          <i class="fa-solid fa-arrow-trend-up"></i>
         </div>
-        <div id="saved-posts-container" class="posts-grid"></div>
-      </section>
+      </div>
 
-      <!-- History Tab -->
-      <section id="tab-history" class="tab-content">
-        <div class="card">
-          <h3>Recent Search Queries</h3>
-          <div id="history-table-container" class="table-container"></div>
+      <div class="metric-box">
+        <div class="metric-info">
+          <h4>Total Likes / Upvotes</h4>
+          <div class="metric-num" id="kpiLikes">0</div>
         </div>
-      </section>
-
-      <!-- Accounts Tab -->
-      <section id="tab-accounts" class="tab-content">
-        <div class="card">
-          <div class="card-header">
-            <h3>X Account Pool Management</h3>
-            <button class="btn btn-primary btn-sm" onclick="showAccountModal()">+ Add Account Cookies</button>
-          </div>
-          <p class="card-desc">
-            twscrape rotates accounts in this local pool to handle rate limits and execute authenticated searches.
-          </p>
-          <div id="accounts-table-container" class="table-container"></div>
-          <div class="pool-actions">
-            <button class="btn btn-secondary btn-sm" onclick="resetLocks()">Reset Rate Limit Locks</button>
-            <button class="btn btn-secondary btn-sm" onclick="checkStatus()">Refresh Status</button>
-          </div>
+        <div class="metric-icon icon-amber">
+          <i class="fa-solid fa-heart"></i>
         </div>
-      </section>
-    </main>
+      </div>
 
-    <!-- Cookie Setup Modal -->
-    <div id="account-modal" class="modal hidden">
-      <div class="modal-overlay" onclick="hideAccountModal()"></div>
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3>Add X Session Cookies</h3>
-          <button class="modal-close" onclick="hideAccountModal()">&times;</button>
+      <div class="metric-box">
+        <div class="metric-info">
+          <h4>Total Comments / Replies</h4>
+          <div class="metric-num" id="kpiComments">0</div>
         </div>
-        <div class="modal-body">
-          <p class="modal-desc">
-            To search X reliably without automated login challenges, provide the session cookies from an active browser session on <code>x.com</code>.
-          </p>
-          <div class="instructions-card">
-            <strong>How to get cookies:</strong>
-            <ol>
-              <li>Open <a href="https://x.com" target="_blank" rel="noopener">x.com</a> in your browser and ensure you are logged in.</li>
-              <li>Press <kbd>F12</kbd> (or Right Click → Inspect) → Go to <strong>Application</strong> (or Storage) tab.</li>
-              <li>Under <strong>Cookies</strong>, click <code>https://x.com</code>.</li>
-              <li>Copy the values for <code>auth_token</code> and <code>ct0</code>.</li>
-            </ol>
-          </div>
+        <div class="metric-icon icon-purple">
+          <i class="fa-solid fa-comments"></i>
+        </div>
+      </div>
 
-          <form id="cookie-form" onsubmit="handleAddCookies(event)">
-            <div class="form-group">
-              <label for="cookie-account-name">Account Label / Identifier</label>
-              <input type="text" id="cookie-account-name" placeholder="e.g. my_account_1" value="internship_account" required>
-            </div>
-            <div class="form-group">
-              <label for="cookie-string">Cookie String or Header</label>
-              <textarea 
-                id="cookie-string" 
-                rows="4" 
-                placeholder="auth_token=xxxxxxxxxxxxxxxx; ct0=yyyyyyyyyyyyyyyy" 
-                required
-              ></textarea>
-              <span class="field-hint">Paste full cookie header or at least <code>auth_token=...; ct0=...</code></span>
-            </div>
-            <div id="cookie-modal-error" class="modal-error hidden"></div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" onclick="hideAccountModal()">Cancel</button>
-              <button type="submit" id="cookie-submit-btn" class="btn btn-primary">Save Account Session</button>
-            </div>
-          </form>
+      <div class="metric-box">
+        <div class="metric-info">
+          <h4>Total Shares / Reposts</h4>
+          <div class="metric-num" id="kpiShares">0</div>
+        </div>
+        <div class="metric-icon icon-blue">
+          <i class="fa-solid fa-share-nodes"></i>
         </div>
       </div>
     </div>
 
-    <!-- Raw Data View Modal -->
-    <div id="raw-modal" class="modal hidden">
-      <div class="modal-overlay" onclick="hideRawModal()"></div>
-      <div class="modal-card modal-lg">
-        <div class="modal-header">
-          <h3 id="raw-modal-title">Raw Post Payload</h3>
-          <button class="modal-close" onclick="hideRawModal()">&times;</button>
+    <!-- Feed & Intelligence Stream -->
+    <section class="feed-container">
+      <div class="feed-controls-bar">
+        
+        <!-- Platform Filter Tabs (All 7 Platforms) -->
+        <div class="platform-tabs">
+          <button class="tab-pill active" data-platform="all" onclick="switchFilterPlatform('all')">
+            <i class="fa-solid fa-list-ul"></i> All <span id="countPillAll">(0)</span>
+          </button>
+          <button class="tab-pill" data-platform="x" onclick="switchFilterPlatform('x')">
+            <i class="fa-brands fa-x-twitter" style="color: var(--color-x);"></i> X <span id="countPillX">(0)</span>
+          </button>
+          <button class="tab-pill" data-platform="facebook" onclick="switchFilterPlatform('facebook')">
+            <i class="fa-brands fa-facebook" style="color: var(--color-fb);"></i> Facebook <span id="countPillFacebook">(0)</span>
+          </button>
+          <button class="tab-pill" data-platform="reddit" onclick="switchFilterPlatform('reddit')">
+            <i class="fa-brands fa-reddit-alien" style="color: var(--color-reddit);"></i> Reddit <span id="countPillReddit">(0)</span>
+          </button>
+          <button class="tab-pill" data-platform="youtube" onclick="switchFilterPlatform('youtube')">
+            <i class="fa-brands fa-youtube" style="color: var(--color-youtube);"></i> YouTube <span id="countPillYouTube">(0)</span>
+          </button>
+          <button class="tab-pill" data-platform="instagram" onclick="switchFilterPlatform('instagram')">
+            <i class="fa-brands fa-instagram" style="color: var(--color-instagram);"></i> Instagram <span id="countPillInstagram">(0)</span>
+          </button>
+          <button class="tab-pill" data-platform="linkedin" onclick="switchFilterPlatform('linkedin')">
+            <i class="fa-brands fa-linkedin" style="color: var(--color-linkedin);"></i> LinkedIn <span id="countPillLinkedIn">(0)</span>
+          </button>
+          <button class="tab-pill" data-platform="news" onclick="switchFilterPlatform('news')">
+            <i class="fa-solid fa-newspaper" style="color: var(--color-news);"></i> News <span id="countPillNews">(0)</span>
+          </button>
         </div>
-        <div class="modal-body">
-          <pre id="raw-json-content"></pre>
+
+        <!-- Right Side Controls & Filters -->
+        <div class="feed-right-tools">
+          
+          <!-- Content Type Filter (All / Posts / Comments) -->
+          <div class="content-type-toggle">
+            <button class="btn-type-filter active" data-type="all" onclick="setContentTypeFilter('all', this)">All Content</button>
+            <button class="btn-type-filter" data-type="post" onclick="setContentTypeFilter('post', this)"><i class="fa-regular fa-file-lines"></i> Posts</button>
+            <button class="btn-type-filter" data-type="comment" onclick="setContentTypeFilter('comment', this)"><i class="fa-regular fa-comments"></i> Comments</button>
+          </div>
+
+          <!-- Sentiment Quick Slices -->
+          <div class="sentiment-filters">
+            <button class="btn-sent-filter active" onclick="setSentimentFilter('all', this)">All</button>
+            <button class="btn-sent-filter" onclick="setSentimentFilter('Positive', this)" style="color: var(--accent-green);">🟢 Pos</button>
+            <button class="btn-sent-filter" onclick="setSentimentFilter('Neutral', this)" style="color: #94a3b8;">⚪ Neu</button>
+            <button class="btn-sent-filter" onclick="setSentimentFilter('Negative', this)" style="color: var(--accent-red);">🔴 Neg</button>
+          </div>
+
+          <input type="text" id="feedFilterInput" class="in-feed-search" placeholder="Filter text (or Enter to search DB)..." oninput="filterAndRender()" onkeydown="if(event.key==='Enter') searchFeedText(this.value)">
+
+          <button class="btn-export" onclick="batchVerifyAll()" style="background: rgba(168, 85, 247, 0.15); border-color: var(--accent-purple); color: #c084fc;" title="Run AI & Fact-Check Verification on all posts">
+            <i class="fa-solid fa-shield-halved"></i> Verify All
+          </button>
+
+          <button class="btn-export" onclick="exportDataCSV()">
+            <i class="fa-solid fa-file-export"></i> CSV
+          </button>
         </div>
+      </div>
+
+      <!-- Feed Post Items -->
+      <div id="postsFeedContainer" class="post-list">
+        <div class="empty-state">
+          <i class="fa-solid fa-radar"></i>
+          <p>No mentions loaded yet. Enter a keyword above or click a Quick Scan button to run a live scan across posts and comment threads.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Accounts Modal -->
+  <div id="accountsModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal-window">
+      <h3><i class="fa-solid fa-key" style="color: var(--accent-green);"></i> Dedicated Platform Credentials</h3>
+      <p>Configure direct session cookies for 𝕏, LinkedIn, Facebook, or Instagram scraping.</p>
+      
+      <div class="field-group">
+        <label>Platform</label>
+        <select id="modalAccPlatform" onchange="updateCookieHint()" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); color: #fff; padding: 8px 12px; border-radius: var(--radius-sm);">
+          <option value="x">𝕏 X (Twitter) - auth_token & ct0</option>
+          <option value="linkedin">💼 LinkedIn - li_at & JSESSIONID</option>
+          <option value="facebook">🔵 Facebook - c_user & xs</option>
+          <option value="instagram">📸 Instagram - sessionid</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label>Account Identifier</label>
+        <input type="text" id="modalAccName" placeholder="e.g. main_session_1">
+      </div>
+
+      <div class="field-group">
+        <label id="modalCookiesLabel">Cookies (Cookie string or JSON)</label>
+        <textarea id="modalAccCookies" rows="5" placeholder="auth_token=...; ct0=..."></textarea>
+        <div id="modalCookieTip" style="font-size: 11.5px; color: var(--text-secondary); margin-top: 6px;">
+          💡 <strong>Tip for 𝕏:</strong> Open x.com DevTools (F12) &rarr; Application &rarr; Cookies &rarr; Copy <code>auth_token</code> and <code>ct0</code>.
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn-secondary" onclick="closeAccountsModal()">Cancel</button>
+        <button class="btn-primary" onclick="saveAccountCookies()">Save Credentials</button>
       </div>
     </div>
   </div>
 
-  <script src="/static/app.js"></script>
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast hidden"></div>
+
+  <!-- Main Inline Application Logic -->
+  <script>
+    // Global State
+    let currentPosts = [];
+    let currentPlatformFilter = 'all';
+    let currentSentimentFilter = 'all';
+    let currentTypeFilter = 'all';
+    let currentSearchKeyword = '';
+    let topicChartInstance = null;
+
+    // Initialization
+    document.addEventListener("DOMContentLoaded", () => {
+      initChart();
+      loadInitialData();
+
+      // Hook up search button and enter key
+      document.getElementById("btnExecuteSearch").addEventListener("click", triggerSearch);
+      document.getElementById("keywordInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          triggerSearch();
+        }
+      });
+
+      // Hook up accounts modal
+      document.getElementById("btnOpenAccounts").addEventListener("click", () => {
+        document.getElementById("accountsModalBackdrop").classList.remove("hidden");
+      });
+    });
+
+    function closeAccountsModal() {
+      document.getElementById("accountsModalBackdrop").classList.add("hidden");
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toastContainer");
+      t.innerText = msg;
+      t.classList.remove("hidden");
+      setTimeout(() => t.classList.add("hidden"), 2500);
+    }
+
+    // Chart.js Setup with safe fallback
+    function initChart() {
+      try {
+        const ctx = document.getElementById('topicBarChart');
+        if (!ctx || typeof Chart === 'undefined') return;
+
+        topicChartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Admissions', 'Academics', 'Complaints', 'Campus Life', 'Announcements'],
+            datasets: [
+              {
+                label: 'Positive',
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: '#00e599',
+                borderRadius: 4
+              },
+              {
+                label: 'Neutral',
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: '#64748b',
+                borderRadius: 4
+              },
+              {
+                label: 'Negative',
+                data: [0, 0, 0, 0, 0],
+                backgroundColor: '#ff4d6d',
+                borderRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: { color: '#9ca3af', font: { size: 11 } }
+              }
+            },
+            scales: {
+              x: {
+                stacked: true,
+                grid: { display: false },
+                ticks: { color: '#9ca3af', font: { size: 11 } }
+              },
+              y: {
+                stacked: true,
+                grid: { color: 'rgba(255, 255, 255, 0.06)' },
+                ticks: { color: '#9ca3af', stepSize: 1 }
+              }
+            }
+          }
+        });
+      } catch (err) {
+        console.warn("Chart.js failed to initialize:", err);
+      }
+    }
+
+    // Quick search trigger
+    function quickSearch(kw) {
+      document.getElementById("keywordInput").value = kw;
+      triggerSearch();
+    }
+
+    // Load initial analytics and posts from DB
+    async function loadInitialData() {
+      await fetchSavedPosts();
+    }
+
+    // Trigger Search API Call
+    async function triggerSearch() {
+      const keyword = document.getElementById("keywordInput").value.trim();
+      if (!keyword) {
+        alert("Please enter a search keyword.");
+        return;
+      }
+
+      currentSearchKeyword = keyword;
+      const platform = document.getElementById("platformSelect").value;
+      const limit = parseInt(document.getElementById("limitSelect").value, 10) || 20;
+      const loader = document.getElementById("searchLoader");
+      const btn = document.getElementById("btnExecuteSearch");
+
+      loader.classList.remove("hidden");
+      btn.disabled = true;
+      btn.style.opacity = "0.7";
+
+      try {
+        const response = await fetch("/api/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: keyword,
+            platform: platform,
+            limit: limit,
+            save_to_db: true
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          const msg = data.detail?.message || data.detail || "Search request failed";
+          alert("Search Error: " + (typeof msg === 'object' ? JSON.stringify(msg) : msg));
+        } else {
+          currentPosts = data.posts || [];
+          if (platform !== 'all') {
+            currentPlatformFilter = platform;
+            updateTabUI(platform);
+          } else {
+            currentPlatformFilter = 'all';
+            updateTabUI('all');
+          }
+          filterAndRender();
+        }
+      } catch (err) {
+        alert("Network or Server error while executing search: " + err.message);
+      } finally {
+        loader.classList.add("hidden");
+        btn.disabled = false;
+        btn.style.opacity = "1";
+      }
+    }
+
+    // Fetch Saved Posts from DB on load or platform switch
+    async function fetchSavedPosts(platform = null) {
+      try {
+        let url = "/api/posts?limit=100";
+        if (platform && platform !== 'all') {
+          url += `&platform=${encodeURIComponent(platform)}`;
+        }
+        const res = await fetch(url);
+        const data = await res.json();
+        currentPosts = data.posts || [];
+        filterAndRender();
+      } catch (err) {
+        console.warn("Error fetching saved posts:", err);
+      }
+    }
+
+    // Feed search directly hitting SQLite DB
+    async function searchFeedText(val) {
+      const q = (val || "").trim();
+      if (!q) {
+        await fetchSavedPosts(currentPlatformFilter);
+        return;
+      }
+      try {
+        let url = `/api/posts?limit=100&q=${encodeURIComponent(q)}`;
+        if (currentPlatformFilter && currentPlatformFilter !== 'all') {
+          url += `&platform=${encodeURIComponent(currentPlatformFilter)}`;
+        }
+        const res = await fetch(url);
+        const data = await res.json();
+        currentPosts = data.posts || [];
+        filterAndRender();
+      } catch (err) {
+        console.warn("Feed search error:", err);
+      }
+    }
+
+    // Platform Tab Switching
+    async function switchFilterPlatform(platform) {
+      currentPlatformFilter = platform;
+      updateTabUI(platform);
+      await fetchSavedPosts(platform);
+    }
+
+    function updateTabUI(platform) {
+      document.querySelectorAll(".tab-pill").forEach(tab => {
+        if (tab.getAttribute("data-platform") === platform) {
+          tab.classList.add("active");
+        } else {
+          tab.classList.remove("active");
+        }
+      });
+    }
+
+    // Content Type Filter (All / Posts / Comments)
+    function setContentTypeFilter(type, btnElement) {
+      currentTypeFilter = type;
+      document.querySelectorAll(".btn-type-filter").forEach(b => b.classList.remove("active"));
+      btnElement.classList.add("active");
+      filterAndRender();
+    }
+
+    // Sentiment Filter Slices
+    function setSentimentFilter(sent, btnElement) {
+      currentSentimentFilter = sent;
+      document.querySelectorAll(".btn-sent-filter").forEach(b => b.classList.remove("active"));
+      btnElement.classList.add("active");
+      filterAndRender();
+    }
+
+    function resetAllFilters() {
+      currentPlatformFilter = 'all';
+      currentSentimentFilter = 'all';
+      currentTypeFilter = 'all';
+      document.getElementById("feedFilterInput").value = '';
+      updateTabUI('all');
+      document.querySelectorAll(".btn-sent-filter").forEach((b, i) => {
+        if (i === 0) b.classList.add("active");
+        else b.classList.remove("active");
+      });
+      document.querySelectorAll(".btn-type-filter").forEach((b, i) => {
+        if (i === 0) b.classList.add("active");
+        else b.classList.remove("active");
+      });
+      filterAndRender();
+    }
+
+    // Master filter, statistics calculation, and rendering
+    function filterAndRender() {
+      const textQuery = (document.getElementById("feedFilterInput").value || "").toLowerCase();
+
+      // 1. Update tab counts across all 7 platforms
+      updatePlatformCounts(currentPosts);
+
+      // 2. Filter posts
+      const filtered = currentPosts.filter(post => {
+        const pMatch = (currentPlatformFilter === 'all') || ((post.platform || '').toLowerCase() === currentPlatformFilter);
+        const sMatch = (currentSentimentFilter === 'all') || (post.sentiment_label === currentSentimentFilter);
+        const typeMatch = (currentTypeFilter === 'all') || ((post.item_type || 'post') === currentTypeFilter);
+        const tMatch = !textQuery || 
+          (post.text || '').toLowerCase().includes(textQuery) || 
+          (post.author_username || '').toLowerCase().includes(textQuery) ||
+          (post.author_name || '').toLowerCase().includes(textQuery);
+        return pMatch && sMatch && typeMatch && tMatch;
+      });
+
+      // 3. Update Active Filter Banner
+      const banner = document.getElementById("activeFilterBanner");
+      if (currentPlatformFilter !== 'all' || currentSentimentFilter !== 'all' || currentTypeFilter !== 'all' || textQuery) {
+        banner.classList.remove("hidden");
+        const parts = [];
+        if (currentPlatformFilter !== 'all') parts.push(`Platform: ${currentPlatformFilter.toUpperCase()}`);
+        if (currentTypeFilter !== 'all') parts.push(`Type: ${currentTypeFilter.toUpperCase()}S`);
+        if (currentSentimentFilter !== 'all') parts.push(`Sentiment: ${currentSentimentFilter}`);
+        if (textQuery) parts.push(`Text: "${textQuery}"`);
+        document.getElementById("filterBannerText").innerText = parts.join(" • ");
+      } else {
+        banner.classList.add("hidden");
+      }
+
+      // 4. Recalculate stats for the active filter subset
+      recalculateStats(filtered);
+
+      // 5. Render Feed Cards
+      renderFeed(filtered);
+    }
+
+    // Dynamic stats recalculation based on the active filtered results
+    function recalculateStats(posts) {
+      const total = posts.length;
+      let pos = 0, neu = 0, neg = 0;
+      let totalLikes = 0, totalReposts = 0, totalReplies = 0;
+
+      const topicCounts = {
+        'Admissions & Fees': { pos: 0, neu: 0, neg: 0 },
+        'Academics & Research': { pos: 0, neu: 0, neg: 0 },
+        'Complaints & Issues': { pos: 0, neu: 0, neg: 0 },
+        'Campus Life & Events': { pos: 0, neu: 0, neg: 0 },
+        'Announcements': { pos: 0, neu: 0, neg: 0 }
+      };
+
+      posts.forEach(p => {
+        const sent = p.sentiment_label || 'Neutral';
+        if (sent === 'Positive') pos++;
+        else if (sent === 'Negative') neg++;
+        else neu++;
+
+        totalLikes += parseInt(p.likes || 0, 10);
+        totalReposts += Math.max(parseInt(p.shares || 0, 10), parseInt(p.reposts || 0, 10));
+        totalReplies += Math.max(parseInt(p.comments_count || 0, 10), parseInt(p.replies || 0, 10));
+
+        // Topic stats
+        (p.topics || []).forEach(t => {
+          if (topicCounts[t]) {
+            if (sent === 'Positive') topicCounts[t].pos++;
+            else if (sent === 'Negative') topicCounts[t].neg++;
+            else topicCounts[t].neu++;
+          }
+        });
+      });
+
+      // Total Mentions KPI
+      document.getElementById("kpiTotalCount").innerText = total.toLocaleString();
+
+      // Net Sentiment %
+      const net = total > 0 ? (((pos - neg) / total) * 100).toFixed(1) : "0.0";
+      document.getElementById("kpiNetSentiment").innerText = (net > 0 ? "+" : "") + net + "%";
+
+      // Scope name
+      let scopeName = "All 7 Platforms";
+      if (currentPlatformFilter === 'x') scopeName = "𝕏 X (Twitter)";
+      else if (currentPlatformFilter === 'facebook') scopeName = "Facebook";
+      else if (currentPlatformFilter === 'reddit') scopeName = "Reddit";
+      else if (currentPlatformFilter === 'youtube') scopeName = "YouTube";
+      else if (currentPlatformFilter === 'instagram') scopeName = "Instagram";
+      else if (currentPlatformFilter === 'linkedin') scopeName = "LinkedIn";
+      else if (currentPlatformFilter === 'news') scopeName = "Google News";
+      
+      document.getElementById("chartScopeLabel").innerText = scopeName;
+
+      // Granular Engagement Counters
+      document.getElementById("kpiLikes").innerText = totalLikes.toLocaleString();
+      document.getElementById("kpiComments").innerText = totalReplies.toLocaleString();
+      document.getElementById("kpiShares").innerText = totalReposts.toLocaleString();
+
+      // Sentiment Segmented Bar
+      if (total > 0) {
+        const pPct = ((pos / total) * 100).toFixed(1);
+        const nPct = ((neu / total) * 100).toFixed(1);
+        const gPct = ((neg / total) * 100).toFixed(1);
+
+        document.getElementById("barPos").style.width = pPct + "%";
+        document.getElementById("barNeu").style.width = nPct + "%";
+        document.getElementById("barNeg").style.width = gPct + "%";
+
+        document.getElementById("legendValPos").innerText = `${pos} (${pPct}%)`;
+        document.getElementById("legendValNeu").innerText = `${neu} (${nPct}%)`;
+        document.getElementById("legendValNeg").innerText = `${neg} (${gPct}%)`;
+      } else {
+        document.getElementById("barPos").style.width = "33.3%";
+        document.getElementById("barNeu").style.width = "33.3%";
+        document.getElementById("barNeg").style.width = "33.4%";
+        document.getElementById("legendValPos").innerText = "0 (0%)";
+        document.getElementById("legendValNeu").innerText = "0 (0%)";
+        document.getElementById("legendValNeg").innerText = "0 (0%)";
+      }
+
+      // Update Topic Chart
+      if (topicChartInstance) {
+        const shortLabels = ['Admissions', 'Academics', 'Complaints', 'Campus Life', 'Announcements'];
+        const keys = ['Admissions & Fees', 'Academics & Research', 'Complaints & Issues', 'Campus Life & Events', 'Announcements'];
+
+        const posData = keys.map(k => topicCounts[k].pos);
+        const neuData = keys.map(k => topicCounts[k].neu);
+        const negData = keys.map(k => topicCounts[k].neg);
+
+        topicChartInstance.data.labels = shortLabels;
+        topicChartInstance.data.datasets[0].data = posData;
+        topicChartInstance.data.datasets[1].data = neuData;
+        topicChartInstance.data.datasets[2].data = negData;
+        topicChartInstance.update();
+      }
+    }
+
+    function updatePlatformCounts(posts) {
+      const counts = { all: posts.length, x: 0, facebook: 0, reddit: 0, youtube: 0, instagram: 0, linkedin: 0, news: 0 };
+      posts.forEach(p => {
+        const plat = (p.platform || "").toLowerCase();
+        if (counts[plat] !== undefined) counts[plat]++;
+      });
+
+      document.getElementById("countPillAll").innerText = `(${counts.all})`;
+      document.getElementById("countPillX").innerText = `(${counts.x})`;
+      document.getElementById("countPillFacebook").innerText = `(${counts.facebook})`;
+      document.getElementById("countPillReddit").innerText = `(${counts.reddit})`;
+      document.getElementById("countPillYouTube").innerText = `(${counts.youtube})`;
+      document.getElementById("countPillInstagram").innerText = `(${counts.instagram})`;
+      document.getElementById("countPillLinkedIn").innerText = `(${counts.linkedin})`;
+      document.getElementById("countPillNews").innerText = `(${counts.news})`;
+    }
+
+    // Render Feed Post Cards with 7-Platform Styles, Item Types & Engagement Badges
+    function renderFeed(posts) {
+      const container = document.getElementById("postsFeedContainer");
+      container.innerHTML = "";
+
+      if (!posts || posts.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <p>No matching mentions found for the active platform or search filter.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const activeKeyword = (currentSearchKeyword || document.getElementById("keywordInput").value || "").trim();
+
+      posts.forEach(post => {
+        const sent = post.sentiment_label || 'Neutral';
+        let borderClass = 'neu-border';
+        let badgeClass = 'tag-neu';
+        if (sent === 'Positive') { borderClass = 'pos-border'; badgeClass = 'tag-pos'; }
+        if (sent === 'Negative') { borderClass = 'neg-border'; badgeClass = 'tag-neg'; }
+
+        const isComment = (post.item_type === 'comment');
+        const commentClass = isComment ? 'is-comment' : '';
+
+        // Platform metadata
+        const pLower = (post.platform || '').toLowerCase();
+        let platClass = 'plat-x';
+        let platIcon = 'fa-brands fa-x-twitter';
+        let platName = 'X (Twitter)';
+
+        if (pLower === 'facebook') {
+          platClass = 'plat-facebook';
+          platIcon = 'fa-brands fa-facebook';
+          platName = 'Facebook';
+        } else if (pLower === 'reddit') {
+          platClass = 'plat-reddit';
+          platIcon = 'fa-brands fa-reddit-alien';
+          platName = 'Reddit';
+        } else if (pLower === 'youtube') {
+          platClass = 'plat-youtube';
+          platIcon = 'fa-brands fa-youtube';
+          platName = 'YouTube';
+        } else if (pLower === 'instagram') {
+          platClass = 'plat-instagram';
+          platIcon = 'fa-brands fa-instagram';
+          platName = 'Instagram';
+        } else if (pLower === 'linkedin') {
+          platClass = 'plat-linkedin';
+          platIcon = 'fa-brands fa-linkedin';
+          platName = 'LinkedIn';
+        } else if (pLower === 'news') {
+          platClass = 'plat-news';
+          platIcon = 'fa-solid fa-newspaper';
+          platName = 'Google News';
+        }
+
+        // Format Type Badge
+        const typeBadge = isComment 
+          ? `<span class="tag-badge tag-type-comment"><i class="fa-regular fa-comments"></i> COMMENT</span>`
+          : `<span class="tag-badge tag-type-post"><i class="fa-regular fa-file-lines"></i> POST</span>`;
+
+        // Format Topics
+        const topicsHtml = (post.topics || []).map(t => `<span class="tag-badge tag-topic">${t}</span>`).join(' ');
+
+        // Date string
+        let dateStr = "";
+        try {
+          dateStr = new Date(post.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+        } catch (e) {
+          dateStr = post.created_at || "";
+        }
+
+        // Highlight keyword in text body if available
+        let bodyHtml = escapeHtml(post.text);
+        if (activeKeyword) {
+          const regex = new RegExp(`(${escapeRegex(activeKeyword)})`, 'gi');
+          bodyHtml = bodyHtml.replace(regex, '<mark class="query-highlight">$1</mark>');
+        }
+
+        // Platform-tailored engagement metric icons and badges
+        let metricsHtml = "";
+        const likesCount = parseInt(post.likes || 0, 10);
+        const sharesCount = parseInt(post.shares || post.reposts || 0, 10);
+        const commentsCount = parseInt(post.comments_count || post.replies || 0, 10);
+        const viewsCount = (post.views !== null && post.views !== undefined) ? parseInt(post.views, 10) : null;
+
+        if (pLower === 'x') {
+          // Twitter / X: ALWAYS show Likes, Retweets, Replies, and Views clearly
+          metricsHtml = `
+            <span class="metric-badge" title="Likes / Favorites"><i class="fa-solid fa-heart icon-like"></i> ${likesCount.toLocaleString()} Likes</span>
+            <span class="metric-badge" title="Retweets / Reposts"><i class="fa-solid fa-retweet icon-share"></i> ${sharesCount.toLocaleString()} Retweets</span>
+            <span class="metric-badge" title="Replies / Comments"><i class="fa-regular fa-comment icon-comment"></i> ${commentsCount.toLocaleString()} Replies</span>
+            <span class="metric-badge" title="Views / Impressions"><i class="fa-regular fa-eye icon-view"></i> ${viewsCount !== null ? viewsCount.toLocaleString() + ' Views' : '— Views'}</span>
+          `;
+        } else if (pLower === 'reddit') {
+          metricsHtml = `
+            <span class="metric-badge" title="Upvotes"><i class="fa-solid fa-arrow-up icon-like"></i> ${likesCount.toLocaleString()} Upvotes</span>
+            <span class="metric-badge" title="Comments"><i class="fa-regular fa-comment icon-comment"></i> ${commentsCount.toLocaleString()} Comments</span>
+          `;
+        } else if (pLower === 'youtube') {
+          metricsHtml = `
+            <span class="metric-badge" title="Views"><i class="fa-regular fa-eye icon-view"></i> ${viewsCount !== null ? viewsCount.toLocaleString() + ' Views' : '— Views'}</span>
+            <span class="metric-badge" title="Likes"><i class="fa-regular fa-heart icon-like"></i> ${likesCount.toLocaleString()} Likes</span>
+            <span class="metric-badge" title="Comments"><i class="fa-regular fa-comment icon-comment"></i> ${commentsCount.toLocaleString()} Comments</span>
+          `;
+        } else if (pLower === 'facebook') {
+          metricsHtml = `
+            <span class="metric-badge" title="Reactions"><i class="fa-regular fa-thumbs-up icon-like"></i> ${likesCount.toLocaleString()} Reactions</span>
+            ${sharesCount > 0 ? `<span class="metric-badge" title="Shares"><i class="fa-solid fa-share-nodes icon-share"></i> ${sharesCount.toLocaleString()} Shares</span>` : ''}
+            ${commentsCount > 0 ? `<span class="metric-badge" title="Comments"><i class="fa-regular fa-comment icon-comment"></i> ${commentsCount.toLocaleString()} Comments</span>` : ''}
+          `;
+        } else if (pLower === 'instagram') {
+          metricsHtml = `
+            <span class="metric-badge" title="Likes"><i class="fa-regular fa-heart icon-like"></i> ${likesCount.toLocaleString()} Likes</span>
+            ${commentsCount > 0 ? `<span class="metric-badge" title="Comments"><i class="fa-regular fa-comment icon-comment"></i> ${commentsCount.toLocaleString()} Comments</span>` : ''}
+            ${viewsCount ? `<span class="metric-badge" title="Views"><i class="fa-regular fa-eye icon-view"></i> ${viewsCount.toLocaleString()} Views</span>` : ''}
+          `;
+        } else if (pLower === 'linkedin') {
+          metricsHtml = `
+            <span class="metric-badge" title="Reactions"><i class="fa-regular fa-thumbs-up icon-like"></i> ${likesCount.toLocaleString()} Reactions</span>
+            ${sharesCount > 0 ? `<span class="metric-badge" title="Reposts"><i class="fa-solid fa-retweet icon-share"></i> ${sharesCount.toLocaleString()} Reposts</span>` : ''}
+            ${commentsCount > 0 ? `<span class="metric-badge" title="Comments"><i class="fa-regular fa-comment icon-comment"></i> ${commentsCount.toLocaleString()} Comments</span>` : ''}
+          `;
+        } else {
+          metricsHtml = `
+            <span class="metric-badge"><i class="fa-solid fa-newspaper icon-view"></i> News Article</span>
+          `;
+        }
+
+        const card = document.createElement("div");
+        card.className = `post-card-item ${borderClass} ${platClass} ${commentClass}`;
+        card.innerHTML = `
+          <div class="post-top-meta">
+            <div class="post-author-block">
+              <div class="avatar-circle">
+                <i class="${platIcon}"></i>
+              </div>
+              <div>
+                <span class="author-name-text">${escapeHtml(post.author_name || post.author_username || 'Anonymous')}</span>
+                <span class="author-handle-text">@${escapeHtml(post.author_username || 'unknown')}</span>
+                <span class="post-date-text">• ${dateStr}</span>
+              </div>
+            </div>
+
+            <div class="post-badge-group">
+              <span class="tag-badge tag-platform">
+                <i class="${platIcon}"></i> ${platName}
+              </span>
+              ${typeBadge}
+              <span class="tag-badge ${badgeClass}">${sent} (${(post.sentiment_score || 0).toFixed(2)})</span>
+              ${topicsHtml}
+            </div>
+          </div>
+
+          <div class="post-text-body">
+            ${bodyHtml}
+          </div>
+
+          ${(post.video_info && post.video_info.is_video) ? `
+          <div class="post-video-container" id="video-card-${post.id}" style="margin-top: 12px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(168,85,247,0.35); background: rgba(0,0,0,0.4); max-width: 460px;">
+            <div style="position: relative; width: 100%; height: 230px; background: #0b0f19; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+              ${post.video_info.preview_url ? `
+                <img src="${escapeHtml(post.video_info.preview_url)}" alt="Video Preview" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.9;" onerror="this.style.display='none'" />
+              ` : `
+                <div style="color: var(--text-muted); font-size: 2.5em;"><i class="fa-solid fa-clapperboard"></i></div>
+              `}
+              <div style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 4px 10px; border-radius: 4px; font-size: 0.72em; font-weight: 700; color: #e2e8f0; display: inline-flex; align-items: center; gap: 6px; border: 1px solid rgba(255,255,255,0.15);">
+                <i class="fa-brands fa-${post.platform === 'youtube' ? 'youtube' : (post.platform === 'instagram' ? 'instagram' : 'play')}" style="color: ${post.platform === 'youtube' ? '#ff0033' : '#e1306c'}; font-size: 1.1em;"></i>
+                ${post.video_info.video_type === 'youtube_short' ? 'YouTube Short' : (post.video_info.video_type === 'instagram_reel' ? 'Instagram Reel' : (post.video_info.video_type === 'youtube_video' ? 'YouTube Video' : 'Video'))}
+              </div>
+              <a href="${escapeHtml(post.video_info.watch_url || post.url)}" target="_blank" rel="noopener noreferrer" title="Watch Video" style="position: absolute; width: 46px; height: 46px; border-radius: 50%; background: rgba(168,85,247,0.9); display: flex; align-items: center; justify-content: center; color: white; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                <i class="fa-solid fa-play" style="margin-left: 3px; font-size: 0.95em;"></i>
+              </a>
+            </div>
+            <div class="video-overlay-bar" id="video-bar-${post.id}" style="padding: 10px 14px; background: rgba(14, 19, 31, 0.96); display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 8px;">
+              <span id="video-verdict-${post.id}" style="font-size: 0.8em; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-wave-square" style="color: var(--accent-purple);"></i> Multi-Frame & Temporal Forensics
+              </span>
+              <button type="button" class="btn-verify-video" onclick="verifyVideo('${escapeHtml(post.video_info.watch_url || post.url)}', '${post.id}', '${escapeHtml(post.platform || '')}')" style="background: rgba(168, 85, 247, 0.2); border: 1px solid var(--accent-purple); color: #d8b4fe; padding: 4px 12px; border-radius: 4px; font-size: 0.78em; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-clapperboard"></i> Verify Video
+              </button>
+            </div>
+          </div>
+          ` : (post.media_urls && post.media_urls.length > 0) ? `
+          <div class="post-media-container" style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+            ${post.media_urls.map((imgUrl, mIdx) => `
+              <div class="card-media-item" id="media-card-${post.id}-${mIdx}" style="position: relative; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); max-width: 440px;">
+                <img src="${escapeHtml(imgUrl)}" alt="Post Media" loading="lazy" style="width: 100%; max-height: 240px; object-fit: cover; display: block;" onerror="this.closest('.card-media-item').style.display='none'" />
+                <div class="media-overlay-bar" id="media-bar-${post.id}-${mIdx}" style="padding: 8px 12px; background: rgba(14, 19, 31, 0.95); display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.08);">
+                  <span id="media-verdict-${post.id}-${mIdx}" style="font-size: 0.8em; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-camera"></i> Attached Media
+                  </span>
+                  <button type="button" class="btn-verify-image" onclick="verifyImage('${escapeHtml(imgUrl)}', '${post.id}', '${mIdx}')" style="background: rgba(168, 85, 247, 0.15); border: 1px solid var(--accent-purple); color: #c084fc; padding: 3px 9px; border-radius: 4px; font-size: 0.76em; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Verify Image
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          ` : ''}
+          
+          ${post.authenticity && (post.authenticity.context_status || post.authenticity.ai_text_status) ? `
+          <div style="margin-top: 12px; padding: 12px; background: rgba(14, 19, 31, 0.7); border: 1px solid rgba(255,255,255,0.08); border-left: 3px solid ${post.authenticity.context_status === 'supported' ? '#00e599' : (post.authenticity.context_status === 'contradicted' ? '#ff4d6d' : (post.authenticity.context_status === 'insufficient_evidence' || post.authenticity.context_status === 'no_verifiable_claims' ? '#9ca3af' : '#f59e0b'))}; border-radius: 6px; font-size: 0.9em;">
+            <div style="display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: ${post.authenticity.evidence && post.authenticity.evidence.length > 0 ? '8px' : '0'};">
+              <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+                
+                <!-- 1. AI Text Detection (Local Statistical Model) -->
+                <span style="color: ${post.authenticity.ai_text_status === 'likely_ai_generated' ? '#a855f7' : (post.authenticity.ai_text_status === 'possibly_ai_generated' ? '#f59e0b' : (post.authenticity.ai_text_status === 'likely_human' ? '#38bdf8' : '#9ca3af'))}; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;" title="Local statistical burstiness & lexical entropy score">
+                  <i class="fa-solid fa-pen-fancy"></i> 
+                  Text: ${post.authenticity.ai_text_status === 'likely_ai_generated' ? `AI-Gen (${Math.round((post.authenticity.ai_text_score||0.8)*100)}%)` : (post.authenticity.ai_text_status === 'possibly_ai_generated' ? `Mixed (${Math.round((post.authenticity.ai_text_score||0.5)*100)}%)` : (post.authenticity.ai_text_status === 'likely_human' ? `Human (${Math.round((1-(post.authenticity.ai_text_score||0.2))*100)}%)` : 'Short Text'))}
+                </span>
+
+                <!-- 2. Fact Check / Context Verification -->
+                <span style="color: ${post.authenticity.context_status === 'supported' ? '#00e599' : (post.authenticity.context_status === 'contradicted' ? '#ff4d6d' : (post.authenticity.context_status === 'unverified' ? '#f59e0b' : '#9ca3af'))}; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;" title="${post.authenticity.context_status === 'no_verifiable_claims' ? 'Casual opinion or commentary (no verifiable factual claims)' : ''}">
+                  <i class="fa-solid ${post.authenticity.context_status === 'supported' ? 'fa-circle-check' : (post.authenticity.context_status === 'contradicted' ? 'fa-circle-xmark' : (post.authenticity.context_status === 'unverified' ? 'fa-circle-question' : 'fa-circle-info'))}"></i> 
+                  Fact-Check: ${post.authenticity.context_status === 'supported' ? 'SUPPORTED' : (post.authenticity.context_status === 'contradicted' ? 'CONTRADICTED' : (post.authenticity.context_status === 'no_verifiable_claims' ? 'NO CLAIMS' : (post.authenticity.context_status === 'insufficient_evidence' ? 'SHORT TEXT' : 'UNVERIFIED')))}
+                </span>
+
+                <!-- 3. Media / Video Triage -->
+                <span style="color: ${(post.authenticity.media_status || '').includes('ai') ? '#a855f7' : ((post.authenticity.media_status || '').includes('suspicious') ? '#f59e0b' : ((post.authenticity.media_status || '').includes('no_media') ? '#6b7280' : ((post.authenticity.media_status || '').includes('camera') || (post.authenticity.media_status || '').includes('natural') ? '#00e599' : '#38bdf8')))}; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                  <i class="fa-solid ${(post.authenticity.media_status || '').includes('ai') ? 'fa-robot' : ((post.authenticity.media_status || '').includes('no_media') ? 'fa-image-slash' : ((post.video_info && post.video_info.is_video) || (post.authenticity.media_status || '').includes('video') ? 'fa-film' : 'fa-image'))}"></i> 
+                  ${(post.video_info && post.video_info.is_video) || (post.authenticity.media_status || '').includes('video') ? 'Video: ' : 'Media: '}${(post.authenticity.media_status || ((post.video_info && post.video_info.is_video) ? 'video_detected' : 'no_media_found')).replace(/_/g, ' ').toUpperCase()}
+                </span>
+
+              </div>
+              <button onclick="verifyPost('${post.id}')" title="Re-run verification" style="background: transparent; border: 1px solid rgba(255,255,255,0.15); color: var(--text-muted); padding: 2px 8px; border-radius: 4px; font-size: 0.75em; cursor: pointer;">
+                <i class="fa-solid fa-arrows-rotate"></i> Re-verify
+              </button>
+            </div>
+            ${post.authenticity.evidence && post.authenticity.evidence.length > 0 ? `
+            <div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 6px;">
+              <strong style="color: #fff;"><i class="fa-solid fa-quote-left" style="color: var(--accent-blue);"></i> Extracted Claims & News Citations:</strong>
+              <ul style="margin-left: 18px; margin-top: 4px;">
+                ${post.authenticity.evidence.map(ev => `
+                  <li style="margin-bottom: 4px;">
+                    ${ev.supports_claim === true ? '<i class="fa-solid fa-check" style="color:#00e599"></i>' : (ev.supports_claim === false ? '<i class="fa-solid fa-xmark" style="color:#ff4d6d"></i>' : '<i class="fa-solid fa-minus" style="color:#f59e0b"></i>')} 
+                    <strong style="color: #e2e8f0;">"${escapeHtml(ev.claim)}"</strong> — <a href="${ev.source_url}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-blue); text-decoration:none;"><i class="fa-solid fa-link"></i> ${escapeHtml(ev.source_title || ev.source_authority || 'Source')}</a>
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+            ` : ''}
+          </div>
+          ` : `
+          <div id="auth-box-${post.id}" style="margin-top: 10px; padding: 7px 12px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 6px; display: flex; align-items: center; justify-content: space-between;">
+            <span style="color: var(--text-muted); font-size: 0.82em; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-shield-halved" style="color: var(--accent-purple);"></i> Authenticity & Claims: <em style="color: #94a3b8;">Pending / Not Verified</em>
+            </span>
+            <button onclick="verifyPost('${post.id}')" class="btn-verify-mini" style="background: rgba(168, 85, 247, 0.15); border: 1px solid var(--accent-purple); color: #c084fc; padding: 3px 9px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Verify Now
+            </button>
+          </div>
+          `}
+
+          <div class="post-footer-metrics">
+            <div class="stats-icons-group">
+              ${metricsHtml}
+            </div>
+
+            <div class="card-actions-group">
+              <button class="btn-copy-post" onclick="copyPostText(this, ${JSON.stringify(post.text)})" title="Copy text">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+              ${post.url ? `<a href="${post.url}" target="_blank" rel="noopener noreferrer" class="link-out-btn">View on ${platName.split(' ')[0]} <i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function escapeRegex(str) {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function copyPostText(btn, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("Content copied to clipboard!");
+        btn.innerHTML = '<i class="fa-solid fa-check" style="color: var(--accent-green);"></i>';
+        setTimeout(() => btn.innerHTML = '<i class="fa-regular fa-copy"></i>', 1800);
+      });
+    }
+
+    // Export CSV of currently filtered posts and comments
+    function exportDataCSV() {
+      if (!currentPosts || currentPosts.length === 0) {
+        alert("No posts or comments available to export.");
+        return;
+      }
+
+      const rows = [
+        ["ID", "Platform", "Type", "Parent ID", "Author", "Username", "Created At", "Sentiment", "Score", "Topics", "Likes", "Shares", "Comments", "Views", "URL", "Text"]
+      ];
+
+      currentPosts.forEach(p => {
+        rows.push([
+          p.id || "",
+          p.platform || "",
+          p.item_type || "post",
+          p.parent_id || "",
+          p.author_name || "",
+          p.author_username || "",
+          p.created_at || "",
+          p.sentiment_label || "Neutral",
+          p.sentiment_score || 0,
+          (p.topics || []).join("; "),
+          p.likes || 0,
+          p.shares || p.reposts || 0,
+          p.comments_count || p.replies || 0,
+          p.views || "",
+          p.url || "",
+          `"${(p.text || '').replace(/"/g, '""')}"`
+        ]);
+      });
+
+      const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `trendchecker_posts_and_comments_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("CSV export downloaded successfully!");
+    }
+
+    function updateCookieHint() {
+      const plat = document.getElementById("modalAccPlatform").value;
+      const tip = document.getElementById("modalCookieTip");
+      const textarea = document.getElementById("modalAccCookies");
+
+      if (plat === 'x') {
+        tip.innerHTML = "💡 <strong>Tip for 𝕏:</strong> Open x.com DevTools (F12) &rarr; Application &rarr; Cookies &rarr; Copy <code>auth_token</code> and <code>ct0</code>.";
+        textarea.placeholder = "auth_token=...; ct0=...";
+      } else if (plat === 'linkedin') {
+        tip.innerHTML = "💡 <strong>Tip for LinkedIn:</strong> Open linkedin.com DevTools (F12) &rarr; Application &rarr; Cookies &rarr; Copy <code>li_at</code> and <code>JSESSIONID</code>.";
+        textarea.placeholder = "li_at=...; JSESSIONID=...";
+      } else if (plat === 'facebook') {
+        tip.innerHTML = "💡 <strong>Tip for Facebook:</strong> Open facebook.com DevTools (F12) &rarr; Application &rarr; Cookies &rarr; Copy <code>c_user</code> and <code>xs</code>.";
+        textarea.placeholder = "c_user=...; xs=...";
+      } else if (plat === 'instagram') {
+        tip.innerHTML = "💡 <strong>Tip for Instagram:</strong> Open instagram.com DevTools (F12) &rarr; Application &rarr; Cookies &rarr; Copy <code>sessionid</code>, <code>ds_user_id</code>, and <code>csrftoken</code>.";
+        textarea.placeholder = "sessionid=...; ds_user_id=...; csrftoken=...";
+      }
+    }
+
+    async function saveAccountCookies() {
+      const platform = document.getElementById("modalAccPlatform").value;
+      const name = document.getElementById("modalAccName").value.trim();
+      const cookies = document.getElementById("modalAccCookies").value.trim();
+
+      if (!name || !cookies) {
+        alert("Please provide both an account identifier and session cookies.");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/accounts/cookies", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ platform, name, cookies })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert(`Successfully saved ${platform.toUpperCase()} session credentials!`);
+          closeAccountsModal();
+        } else {
+          alert("Error: " + (typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail)));
+        }
+      } catch (e) {
+        alert("Error saving credentials: " + e.message);
+      }
+    }
+
+    // On-demand verification of a single post card
+    async function verifyPost(postId) {
+      const box = document.getElementById(`auth-box-${postId}`);
+      if (box) {
+        box.innerHTML = `
+          <span style="color: var(--accent-blue); font-size: 0.82em; display: flex; align-items: center; gap: 6px;">
+            <i class="fa-solid fa-spinner fa-spin"></i> Extracting claims, cross-referencing Google News & triaging media...
+          </span>
+        `;
+      }
+
+      try {
+        const res = await fetch(`/api/posts/${encodeURIComponent(postId)}/verify`, {
+          method: "POST"
+        });
+        const data = await res.json();
+        if (data.success && data.authenticity) {
+          const target = currentPosts.find(p => String(p.id) === String(postId));
+          if (target) {
+            target.authenticity = data.authenticity;
+          }
+          filterAndRender();
+          showToast("Authenticity verification completed!");
+        } else {
+          if (box) box.innerHTML = '<span style="color: var(--accent-red); font-size: 0.82em;">Verification failed. Please retry.</span>';
+        }
+      } catch (err) {
+        if (box) box.innerHTML = `<span style="color: var(--accent-red); font-size: 0.82em;">Error: ${err.message}</span>`;
+      }
+    }
+
+    // Batch verify all recent unverified posts
+    async function batchVerifyAll() {
+      showToast("Triggered batch authenticity verification on recent posts...");
+      try {
+        await fetch("/api/authenticity/batch-verify", { method: "POST" });
+        setTimeout(async () => {
+          await fetchSavedPosts();
+          showToast("Batch verification updated!");
+        }, 3500);
+      } catch (e) {
+        alert("Batch verify error: " + e.message);
+      }
+    }
+
+    // On-demand verification of a single media image
+    async function verifyImage(imgUrl, postId, mIdx) {
+      const barEl = document.getElementById(`media-bar-${postId}-${mIdx}`);
+      const textEl = document.getElementById(`media-verdict-${postId}-${mIdx}`);
+      if (textEl) {
+        textEl.innerHTML = '<span style="color: var(--accent-blue);"><i class="fa-solid fa-spinner fa-spin"></i> Checking EXIF & AI footprints in-memory...</span>';
+      }
+
+      try {
+        const res = await fetch('/api/media/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: imgUrl, post_id: postId })
+        });
+        const data = await res.json();
+        if (data.success && data.result) {
+          const r = data.result;
+
+          let badgeColor = r.badge_color || '#38bdf8';
+          let badgeIcon = r.is_ai_generated ? 'fa-robot' : (r.verdict === 'AUTHENTIC_CAMERA_PHOTO' ? 'fa-camera' : 'fa-shield-halved');
+          let labelText = r.label || (r.is_ai_generated ? 'LIKELY AI GENERATED' : 'HUMAN / NO AI DETECTED');
+          let detailText = r.details || 'Zero synthetic generative markers found.';
+          let dimText = r.dimensions ? `• ${r.dimensions}` : '';
+          let sizeText = r.file_size_kb ? `(${r.file_size_kb} KB)` : '';
+
+          if (barEl) {
+            barEl.innerHTML = `
+              <div style="display: flex; flex-direction: column; gap: 2px; text-align: left;">
+                <span style="color: ${badgeColor}; font-weight: 700; font-size: 0.82em; display: inline-flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid ${badgeIcon}"></i> ${escapeHtml(labelText)}
+                </span>
+                <span style="color: var(--text-secondary); font-size: 0.74em;">
+                  ${escapeHtml(detailText)} ${dimText} ${sizeText}
+                </span>
+              </div>
+              <span style="background: rgba(0, 229, 153, 0.15); border: 1px solid var(--accent-green); color: var(--accent-green); padding: 3px 8px; border-radius: 4px; font-size: 0.75em; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+                <i class="fa-solid fa-check-double"></i> Verified
+              </span>
+            `;
+          }
+          if (postId) {
+            const target = currentPosts.find(p => String(p.id) === String(postId));
+            if (target && target.authenticity) {
+              target.authenticity.media_status = r.is_ai_generated ? 'likely_ai_generated' : (r.verdict === 'AUTHENTIC_CAMERA_PHOTO' ? 'camera_photo' : 'human_or_compressed');
+            }
+          }
+          showToast("Image analysis completed: " + labelText);
+        } else {
+          if (textEl) textEl.innerHTML = '<span style="color: var(--accent-red);">Verification failed.</span>';
+        }
+      } catch (err) {
+        if (textEl) textEl.innerHTML = `<span style="color: var(--accent-red);">Error: ${err.message}</span>`;
+      }
+    }
+
+    // On-demand verification of a single video (YouTube Short, IG Reel, MP4)
+    async function verifyVideo(videoUrl, postId, platform) {
+      const barEl = document.getElementById(`video-bar-${postId}`);
+      const textEl = document.getElementById(`video-verdict-${postId}`);
+      if (textEl) {
+        textEl.innerHTML = '<span style="color: var(--accent-purple);"><i class="fa-solid fa-spinner fa-spin"></i> Sampling keyframes in RAM & calculating optical flow + noise kurtosis...</span>';
+      }
+
+      try {
+        const res = await fetch('/api/video/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: videoUrl, post_id: postId, platform: platform })
+        });
+        const data = await res.json();
+        if (data.success && data.result) {
+          const r = data.result;
+
+          let badgeColor = r.badge_color || (r.is_ai_video ? '#a855f7' : '#00e599');
+          let badgeIcon = r.is_ai_video ? 'fa-robot' : 'fa-film';
+          let labelText = r.label || (r.is_ai_video ? 'LIKELY AI VIDEO' : 'NATURAL CAMERA VIDEO');
+          let detailText = r.details || '';
+          let scoreText = `(Score: ${Math.round((r.score || r.ai_score || 0) * 100)}%)`;
+          let latencyText = r.elapsed_seconds ? `• ${r.elapsed_seconds}s` : '';
+          let framesText = r.keyframes_analyzed ? `• ${r.keyframes_analyzed} frames` : '';
+
+          if (barEl) {
+            barEl.innerHTML = `
+              <div style="display: flex; flex-direction: column; gap: 3px; text-align: left; max-width: 78%;">
+                <span style="color: ${badgeColor}; font-weight: 700; font-size: 0.82em; display: inline-flex; align-items: center; gap: 6px;">
+                  <i class="fa-solid ${badgeIcon}"></i> ${escapeHtml(labelText)} ${scoreText}
+                </span>
+                <span style="color: var(--text-secondary); font-size: 0.74em; line-height: 1.3;">
+                  ${escapeHtml(detailText)} ${framesText} ${latencyText}
+                </span>
+              </div>
+              <span style="background: ${r.is_ai_video ? 'rgba(168, 85, 247, 0.2)' : 'rgba(0, 229, 153, 0.15)'}; border: 1px solid ${badgeColor}; color: ${badgeColor}; padding: 3px 8px; border-radius: 4px; font-size: 0.75em; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;">
+                <i class="fa-solid fa-check-double"></i> Verified
+              </span>
+            `;
+          }
+          if (postId) {
+            const target = currentPosts.find(p => String(p.id) === String(postId));
+            if (target && target.authenticity) {
+              target.authenticity.media_status = r.is_ai_video ? 'likely_ai_video' : 'natural_camera_video';
+            }
+          }
+          showToast("Video forensics completed: " + labelText);
+        } else {
+          if (textEl) textEl.innerHTML = '<span style="color: var(--accent-red);">Video verification failed.</span>';
+        }
+      } catch (err) {
+        if (textEl) textEl.innerHTML = `<span style="color: var(--accent-red);">Error: ${err.message}</span>`;
+      }
+    }
+  </script>
 </body>
 </html>

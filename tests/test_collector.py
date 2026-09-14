@@ -57,20 +57,20 @@ async def test_mocked_successful_search():
         # Mock check_status to indicate ready
         collector.check_status = AsyncMock(return_value={"ready": True, "active_accounts": 1, "total_accounts": 1})
 
-        # Mock twscrape tweet
-        mock_tweet = SimpleNamespace(
-            id=1122334455,
-            rawContent="International Islamic University Islamabad announces new computer science lab.",
-            user=SimpleNamespace(username="iiui_official", displayname="IIUI Official"),
-            date=datetime(2026, 8, 30, 11, 0, 0),
+        mock_post = NormalizedPost(
+            id="1122334455",
+            text="International Islamic University Islamabad announces new computer science lab.",
+            author_username="iiui_official",
+            author_name="IIUI Official",
+            created_at=datetime(2026, 8, 30, 11, 0, 0),
             url="https://x.com/iiui_official/status/1122334455",
-            likeCount=55,
-            replyCount=10,
-            retweetCount=12,
-            viewCount=3400,
+            likes=55,
+            replies=10,
+            reposts=12,
+            views=3400,
         )
 
-        with patch("app.collectors.x_collector.gather", new=AsyncMock(return_value=[mock_tweet])):
+        with patch.object(collector, "_execute_post_search", new=AsyncMock(return_value=[mock_post])):
             posts = await collector.search("IIUI", limit=10)
 
             assert len(posts) == 1
@@ -80,3 +80,4 @@ async def test_mocked_successful_search():
             assert post.author_username == "iiui_official"
             assert "International Islamic University" in post.text
             assert post.likes == 55
+

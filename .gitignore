@@ -23,3 +23,8 @@ pip-delete-this-directory.txt
 .pydevproject
 .settings/
 .DS_Store
+
+# Temporary artifacts & distribution archives
+*.zip
+*.log
+.tempmediaStorage/

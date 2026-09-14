@@ -1,12 +1,15 @@
-"""X (Twitter) Collector implementation using twscrape with robust error handling."""
+"""X (Twitter) Collector implementation with modern GraphQL POST search and account pooling."""
 
 import os
-import re
+import json
 import logging
 from typing import Any, Dict, List, Optional
 from datetime import datetime
 
-from twscrape import API, gather, Account, Tweet, User
+from twscrape import API, Account, Tweet, User
+from twscrape.models import parse_tweets
+from twscrape.xclid import XClIdGen
+from twscrape.utils import encode_params
 
 from app.models.post import NormalizedPost
 from app.collectors.base import (
@@ -20,9 +23,54 @@ from app.collectors.base import (
 
 logger = logging.getLogger(__name__)
 
+# Search features matching modern X client GraphQL schema
+SEARCH_FEATURES = {
+    "rweb_video_screen_enabled": True,
+    "rweb_cashtags_enabled": True,
+    "profile_label_improvements_pcf_label_in_post_enabled": True,
+    "responsive_web_profile_redirect_enabled": True,
+    "rweb_tipjar_consumption_enabled": True,
+    "verified_phone_label_enabled": False,
+    "creator_subscriptions_tweet_preview_api_enabled": True,
+    "responsive_web_graphql_timeline_navigation_enabled": True,
+    "premium_content_api_read_enabled": True,
+    "communities_web_enable_tweet_community_results_fetch": True,
+    "c9s_tweet_anatomy_moderator_badge_enabled": True,
+    "responsive_web_grok_analyze_button_fetch_trends_enabled": False,
+    "responsive_web_grok_analyze_post_followups_enabled": True,
+    "rweb_cashtags_composer_attachment_enabled": True,
+    "responsive_web_jetfuel_frame": True,
+    "responsive_web_grok_share_attachment_enabled": False,
+    "responsive_web_grok_annotations_enabled": True,
+    "articles_preview_enabled": False,
+    "responsive_web_edit_tweet_api_enabled": True,
+    "rweb_conversational_replies_downvote_enabled": True,
+    "graphql_is_translatable_rweb_tweet_is_translatable_enabled": True,
+    "view_counts_everywhere_api_enabled": True,
+    "longform_notetweets_consumption_enabled": True,
+    "responsive_web_twitter_article_tweet_consumption_enabled": True,
+    "content_disclosure_indicator_enabled": True,
+    "content_disclosure_ai_generated_indicator_enabled": True,
+    "responsive_web_grok_show_grok_translated_post": True,
+    "responsive_web_grok_analysis_button_from_backend": False,
+    "post_ctas_fetch_enabled": True,
+    "freedom_of_speech_not_reach_fetch_enabled": True,
+    "standardized_nudges_misinfo": True,
+    "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled": True,
+    "longform_notetweets_rich_text_read_enabled": True,
+    "longform_notetweets_inline_media_enabled": True,
+    "responsive_web_grok_image_annotation_enabled": False,
+    "responsive_web_grok_imagine_annotation_enabled": False,
+    "responsive_web_grok_community_note_auto_translation_is_enabled": False,
+    "responsive_web_enhance_cards_enabled": False,
+}
+
+OP_SEARCH_TIMELINE = "hyPfJYJ_XAtDYoslQc-Rgg/SearchTimeline"
+QUERY_ID_SEARCH_TIMELINE = "hyPfJYJ_XAtDYoslQc-Rgg"
+
 
 class XCollector(BaseCollector):
-    """Collector for X (Twitter) leveraging twscrape with account pooling and resilience."""
+    """Collector for X (Twitter) leveraging twscrape with account pooling, resilient HTTP POST search, and auto-rotation."""
 
     def __init__(self, db_path: str = "data/accounts.db", raise_when_no_account: bool = True):
         self.db_path = db_path
@@ -156,6 +204,130 @@ class XCollector(BaseCollector):
         except Exception as e:
             raise CollectorError(f"Failed to delete account {username}: {e}") from e
 
+    def _extract_cursor(self, data: dict, cursor_type: str = "Bottom") -> Optional[str]:
+        """Extract timeline pagination cursor from GraphQL response payload."""
+        try:
+            instructions = (
+                data.get("data", {})
+                .get("search_by_raw_query", {})
+                .get("search_timeline", {})
+                .get("timeline", {})
+                .get("instructions", [])
+            )
+            for inst in instructions:
+                entries = inst.get("entries", [])
+                for entry in entries:
+                    entry_id = entry.get("entryId", "")
+                    if f"cursor-{cursor_type.lower()}" in entry_id.lower():
+                        content = entry.get("content", {})
+                        return content.get("value") or content.get("itemContent", {}).get("value")
+        except Exception as e:
+            logger.debug(f"Could not extract cursor from response: {e}")
+        return None
+
+    async def _execute_post_search(
+        self,
+        query: str,
+        limit: int = 20,
+        product: str = "Latest",
+    ) -> List[NormalizedPost]:
+        """Direct GraphQL POST search pipeline resolving current X API requirements."""
+        accounts = await self.api.pool.get_all()
+        active_accounts = [acc for acc in accounts if acc.active and acc.cookies]
+        
+        if not active_accounts:
+            raise NoAccountError(
+                "No active accounts with cookies found in pool.\n"
+                "Please add a valid session cookie using: python run_cli.py add-cookie <name> \"auth_token=...; ct0=...\""
+            )
+
+        account = active_accounts[0]
+        client = account.make_client()
+        
+        try:
+            gen = await XClIdGen.create(cookies=account.cookies)
+        except Exception as e:
+            logger.warning(f"Error initializing XClIdGen: {e}")
+            gen = None
+
+        path = f"/i/api/graphql/{OP_SEARCH_TIMELINE}"
+        url = f"https://x.com{path}"
+
+        all_posts: List[NormalizedPost] = []
+        seen_ids = set()
+        cursor: Optional[str] = None
+
+        try:
+            while len(all_posts) < limit:
+                batch_count = min(20, limit - len(all_posts))
+                variables = {
+                    "rawQuery": query,
+                    "count": batch_count,
+                    "querySource": "typed_query",
+                    "product": product,
+                }
+                if cursor:
+                    variables["cursor"] = cursor
+
+                payload = {
+                    "variables": variables,
+                    "features": SEARCH_FEATURES,
+                    "queryId": QUERY_ID_SEARCH_TIMELINE,
+                }
+
+                headers = {
+                    "referer": f"https://x.com/search?q={query}&src=typed_query&f=live",
+                    "content-type": "application/json",
+                }
+                if gen:
+                    try:
+                        headers["x-client-transaction-id"] = gen.calc("POST", path)
+                    except Exception as calc_err:
+                        logger.debug(f"Transaction ID calculation warning: {calc_err}")
+
+                rep = await client.request("POST", url, json=payload, headers=headers)
+
+                if rep.status_code == 429:
+                    raise RateLimitError("Rate limit reached for SearchTimeline.")
+                elif rep.status_code in (401, 403):
+                    raise AuthError("Authentication failed on X Search endpoint. Please refresh cookies.")
+                elif rep.status_code != 200:
+                    logger.warning(f"X Search returned HTTP {rep.status_code}: {rep.text[:200]}")
+                    break
+
+                data = rep.json()
+                raw_tweets = list(parse_tweets(data, limit=batch_count))
+                if not raw_tweets:
+                    break
+
+                new_count = 0
+                for tweet in raw_tweets:
+                    t_id = str(tweet.id)
+                    if t_id not in seen_ids:
+                        seen_ids.add(t_id)
+                        try:
+                            post = NormalizedPost.from_twscrape(tweet)
+                            all_posts.append(post)
+                            new_count += 1
+                        except Exception as p_err:
+                            logger.warning(f"Error normalizing tweet {t_id}: {p_err}")
+
+                    if len(all_posts) >= limit:
+                        break
+
+                if new_count == 0:
+                    break
+
+                next_cursor = self._extract_cursor(data, "Bottom")
+                if not next_cursor or next_cursor == cursor:
+                    break
+                cursor = next_cursor
+
+            return all_posts
+
+        finally:
+            await client.aclose()
+
     async def search(
         self,
         query: str,
@@ -190,31 +362,18 @@ class XCollector(BaseCollector):
                 "     or via the local Web UI Account Manager."
             )
 
-        # 2. Execute search with twscrape
+        # 2. Execute search
         try:
-            search_gen = self.api.search(
-                clean_query,
+            return await self._execute_post_search(
+                query=clean_query,
                 limit=limit,
-                kv={"product": product},
+                product=product,
             )
-            raw_tweets = await gather(search_gen)
-            
-            posts: List[NormalizedPost] = []
-            for tweet in raw_tweets:
-                try:
-                    post = NormalizedPost.from_twscrape(tweet)
-                    posts.append(post)
-                except Exception as parse_err:
-                    logger.warning(f"Error parsing tweet: {parse_err}")
-                    continue
-
-            return posts
-
+        except (NoAccountError, AuthError, RateLimitError, NetworkError):
+            raise
         except Exception as e:
             err_str = str(e).lower()
-            if "no active account" in err_str or "noaccount" in err_str:
-                raise NoAccountError("All accounts in pool are inactive or locked.") from e
-            elif "rate limit" in err_str or "429" in err_str:
+            if "rate limit" in err_str or "429" in err_str:
                 raise RateLimitError("X rate limit reached. Reset locks or add additional accounts.") from e
             elif "auth" in err_str or "unauthorized" in err_str or "401" in err_str or "403" in err_str:
                 raise AuthError("Authentication failed. Session cookies may have expired.") from e
@@ -222,3 +381,4 @@ class XCollector(BaseCollector):
                 raise NetworkError(f"Network error while reaching X: {e}") from e
             else:
                 raise CollectorError(f"Error searching X for '{clean_query}': {e}") from e
+
